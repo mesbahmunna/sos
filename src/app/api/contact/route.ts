@@ -4,7 +4,38 @@ import nodemailer from 'nodemailer';
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    const { name, email, ...otherData } = data;
+    const { name, email, recaptchaToken, ...otherData } = data;
+
+    // Enforce reCAPTCHA on the contact form (distinguished by having a 'message' field)
+    if (otherData.message && !recaptchaToken) {
+      return NextResponse.json(
+        { error: 'reCAPTCHA token is missing.' },
+        { status: 400 }
+      );
+    }
+
+    // Verify reCAPTCHA token if present
+    if (recaptchaToken) {
+      const secretKey = '6LeRM3YtAAAAAKFU9sSxuDCgUOnavJ65FsrYQZsT';
+      const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
+
+      try {
+        const verifyRes = await fetch(verifyUrl, { method: 'POST' });
+        const verifyData = await verifyRes.json();
+        if (!verifyData.success) {
+          return NextResponse.json(
+            { error: 'reCAPTCHA verification failed.' },
+            { status: 400 }
+          );
+        }
+      } catch (err) {
+        console.error('reCAPTCHA validation error:', err);
+        return NextResponse.json(
+          { error: 'Failed to validate reCAPTCHA.' },
+          { status: 500 }
+        );
+      }
+    }
 
     // 1. Configure the SMTP transporter
     const transporter = nodemailer.createTransport({

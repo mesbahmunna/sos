@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { CheckCircle2, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { PhoneInput } from "./PhoneInput";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const industries = [
   "Restaurants & Cafés",
@@ -44,12 +45,14 @@ export function SimpleContactForm() {
     privacyAccepted: false
   });
   
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.privacyAccepted) return;
+    if (!formData.privacyAccepted || !recaptchaToken) return;
     
     setIsSubmitting(true);
     
@@ -59,7 +62,10 @@ export function SimpleContactForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          recaptchaToken
+        }),
       });
 
       if (response.ok) {
@@ -73,6 +79,8 @@ export function SimpleContactForm() {
           message: "",
           privacyAccepted: false
         });
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
         
         // Reset success message after 5 seconds
         setTimeout(() => {
@@ -81,10 +89,14 @@ export function SimpleContactForm() {
       } else {
         console.error('Failed to submit form');
         alert('Failed to send message. Please try again.');
+        recaptchaRef.current?.reset();
+        setRecaptchaToken(null);
       }
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('An error occurred. Please try again later.');
+      recaptchaRef.current?.reset();
+      setRecaptchaToken(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -233,10 +245,20 @@ export function SimpleContactForm() {
                 </label>
               </div>
 
+              {/* Google reCAPTCHA v2 */}
+              <div className="mt-2 flex justify-center md:justify-start">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey="6LeRM3YtAAAAAKzoFzzuuMldCpbTUAWg9FlDC3e2"
+                  onChange={(token) => setRecaptchaToken(token)}
+                  theme="light"
+                />
+              </div>
+
               <button
                 type="submit"
-                disabled={isSubmitting || !formData.privacyAccepted}
-                className="mt-4 inline-flex h-14 w-full items-center justify-center rounded-full bg-foreground px-8 text-lg font-medium text-background transition-all hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isSubmitting || !formData.privacyAccepted || !recaptchaToken}
+                className="mt-2 inline-flex h-14 w-full items-center justify-center rounded-full bg-foreground px-8 text-lg font-medium text-background transition-all hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
