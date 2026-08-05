@@ -302,7 +302,7 @@ export function ContactForm({ title = "New enquiry", isBookACall = false }: { ti
   let isValid = false;
   if (currentField) {
     const currentValue = formData[currentField.id];
-    if (currentField.type === "text" || currentField.type === "textarea") {
+    if (currentField.type === "text" || currentField.type === "textarea" || currentField.type === "location-autocomplete") {
       isValid = currentField.optional ? true : (typeof currentValue === "string" && currentValue.trim().length > 0);
     } else if (currentField.type === "searchable-dropdown") {
       isValid = typeof currentValue === "string" && currentValue.length > 0;
