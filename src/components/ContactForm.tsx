@@ -114,7 +114,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder, showError }: { val
     const delayDebounceFn = setTimeout(async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(\`https://photon.komoot.io/api/?q=\${encodeURIComponent(query)}&limit=5\`);
+        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5`);
         const data = await res.json();
         if (data.features) {
           setResults(data.features);
