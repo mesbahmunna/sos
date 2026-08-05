@@ -127,7 +127,7 @@ export function SimpleContactForm() {
             exit={{ opacity: 0, scale: 0.95 }}
             className="w-full"
           >
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full" suppressHydrationWarning>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="flex flex-col gap-2">
