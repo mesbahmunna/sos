@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "ShareOnSocial clone project",
 };
 
+import { BackToTop } from "@/components/BackToTop";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +29,10 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col overflow-x-hidden">{children}</body>
+      <body suppressHydrationWarning className="min-h-full flex flex-col overflow-x-hidden">
+        {children}
+        <BackToTop />
+      </body>
     </html>
   );
 }
