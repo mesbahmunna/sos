@@ -146,10 +146,10 @@ export function IndustriesSection() {
           <ArrowUpRight className="h-4 w-4 transition-transform group-hover:rotate-45" />
         </Link>
         <Link
-          href="/contact"
+          href="/industries"
           className="group inline-flex items-center justify-center gap-2 rounded-full border border-foreground px-8 py-4 text-sm font-medium text-foreground transition-all hover:-translate-y-0.5 hover:bg-foreground/5 hover:shadow-lg w-full sm:w-auto"
         >
-          Connect Now
+          Explore All Industries
         </Link>
       </div>
     </section>
