@@ -77,6 +77,7 @@ const steps: FieldConfig[] = [
     question: "What's your biggest challenge?",
     placeholder: "Tell us about your biggest challenge...",
     type: "textarea",
+    optional: true,
   },
   {
     id: "website",
