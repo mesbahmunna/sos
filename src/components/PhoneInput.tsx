@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PhoneInput as ReactInternationalPhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 
@@ -11,10 +11,24 @@ type PhoneInputProps = {
 };
 
 export const PhoneInput: React.FC<PhoneInputProps> = ({ name, value, onChange }) => {
+  const [country, setCountry] = useState("in"); // Fallback default to India
+
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.country_code) {
+          setCountry(data.country_code.toLowerCase());
+        }
+      })
+      .catch((err) => console.error("Error auto-detecting country", err));
+  }, []);
+
   return (
     <div className="custom-phone-input-root relative w-full">
       <ReactInternationalPhoneInput
-        defaultCountry="in"
+        key={country}
+        defaultCountry={country}
         value={value}
         onChange={(phone) => onChange(phone)}
         className="w-full"
