@@ -14,14 +14,20 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({ name, value, onChange })
   const [country, setCountry] = useState("in"); // Fallback default to India
 
   useEffect(() => {
-    fetch('https://ipapi.co/json/')
-      .then((res) => res.json())
+    fetch('https://ipinfo.io/json')
+      .then((res) => {
+        if (!res.ok) throw new Error('Response not OK');
+        return res.json();
+      })
       .then((data) => {
-        if (data.country_code) {
-          setCountry(data.country_code.toLowerCase());
+        if (data.country) {
+          setCountry(data.country.toLowerCase());
         }
       })
-      .catch((err) => console.error("Error auto-detecting country", err));
+      .catch((err) => {
+        // Silently log warning and gracefully fall back to 'in'
+        console.warn("Country auto-detect skipped (likely blocked by Adblocker):", err.message);
+      });
   }, []);
 
   return (
