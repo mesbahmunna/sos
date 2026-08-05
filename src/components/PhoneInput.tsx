@@ -11,7 +11,7 @@ type PhoneInputProps = {
 };
 
 export const PhoneInput: React.FC<PhoneInputProps> = ({ name, value, onChange }) => {
-  const [country, setCountry] = useState("in"); // Fallback default to India
+  const [country, setCountry] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/country')
@@ -22,18 +22,29 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({ name, value, onChange })
       .then((data) => {
         if (data.country) {
           setCountry(data.country.toLowerCase());
+        } else {
+          setCountry("in");
         }
       })
       .catch((err) => {
-        // Silently log warning and gracefully fall back to 'in'
         console.warn("Country auto-detect fallback active:", err.message);
+        setCountry("in");
       });
   }, []);
+
+  if (!country) {
+    return (
+      <div className="custom-phone-input-root relative w-full">
+        <div className="w-full flex rounded-2xl border border-foreground/15 bg-background h-[58px] animate-pulse items-center px-5">
+          <span className="text-foreground/20 text-lg">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="custom-phone-input-root relative w-full">
       <ReactInternationalPhoneInput
-        key={country}
         defaultCountry={country}
         value={value}
         onChange={(phone) => onChange(phone)}
