@@ -23,11 +23,6 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({ name, value, onChange })
           name: name,
           placeholder: 'Phone *',
         }}
-        countrySelectorStyleProps={{
-          dropdownStyleProps: {
-            showSearch: true,
-          }
-        }}
       />
 
       <style dangerouslySetInnerHTML={{__html: `
