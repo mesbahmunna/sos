@@ -14,7 +14,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({ name, value, onChange })
   const [country, setCountry] = useState("in"); // Fallback default to India
 
   useEffect(() => {
-    fetch('https://ipinfo.io/json')
+    fetch('/api/country')
       .then((res) => {
         if (!res.ok) throw new Error('Response not OK');
         return res.json();
@@ -26,7 +26,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({ name, value, onChange })
       })
       .catch((err) => {
         // Silently log warning and gracefully fall back to 'in'
-        console.warn("Country auto-detect skipped (likely blocked by Adblocker):", err.message);
+        console.warn("Country auto-detect fallback active:", err.message);
       });
   }, []);
 
