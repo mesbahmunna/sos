@@ -145,7 +145,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder, showError }: { val
       <input
         type="text"
         autoFocus
-        className={\`w-full rounded-2xl border bg-background px-5 py-4 text-lg outline-none transition-colors \${showError ? "border-[color:var(--color-brand-pink)]/50 focus:border-[color:var(--color-brand-pink)]" : "border-foreground/15 placeholder:text-foreground/40 focus:border-foreground/40"}\`}
+        className={`w-full rounded-2xl border bg-background px-5 py-4 text-lg outline-none transition-colors ${showError ? "border-[color:var(--color-brand-pink)]/50 focus:border-[color:var(--color-brand-pink)]" : "border-foreground/15 placeholder:text-foreground/40 focus:border-foreground/40"}`}
         placeholder={placeholder || "City, State, Country"}
         value={query}
         onChange={(e) => {
