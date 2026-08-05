@@ -1,0 +1,41 @@
+User-agent: *
+Disallow: /api/
+Disallow: /_next/
+
+# Allow Google Search Engine
+User-agent: Googlebot
+Allow: /
+
+# Allow Google Gemini AI Crawlers
+User-agent: Google-Extended
+Allow: /
+
+# Allow OpenAI ChatGPT Crawlers
+User-agent: GPTBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+
+# Allow Bing Search Engine
+User-agent: Bingbot
+Allow: /
+
+# Allow Apple Search Crawlers
+User-agent: Applebot
+Allow: /
+
+# Block Aggressive & Malicious SEO Scrapers
+User-agent: AhrefsBot
+Disallow: /
+User-agent: SemrushBot
+Disallow: /
+User-agent: MJ12bot
+Disallow: /
+User-agent: DotBot
+Disallow: /
+User-agent: Rogerbot
+Disallow: /
+User-agent: PetalBot
+Disallow: /
+User-agent: ByteSpider
+Disallow: /
