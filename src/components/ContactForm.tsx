@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, CheckCircle2, Check, Search } from "lucide-react";
 import Link from "next/link";
@@ -103,7 +103,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder, showError }: { val
   const [results, setResults] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const skipFetch = React.useRef(false);
+  const skipFetch = useRef(false);
 
   useEffect(() => {
     if (value === "" && query !== "") {
