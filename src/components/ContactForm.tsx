@@ -103,11 +103,23 @@ const LocationAutocomplete = ({ value, onChange, placeholder, showError }: { val
   const [results, setResults] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const skipFetch = React.useRef(false);
 
   useEffect(() => {
-    if (!query || query === value) {
+    if (value === "" && query !== "") {
+      setQuery("");
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (!query) {
       setResults([]);
       setIsOpen(false);
+      return;
+    }
+
+    if (skipFetch.current) {
+      skipFetch.current = false;
       return;
     }
 
@@ -128,13 +140,14 @@ const LocationAutocomplete = ({ value, onChange, placeholder, showError }: { val
     }, 400);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [query, value]);
+  }, [query]);
 
   const handleSelect = (feature: any) => {
     const p = feature.properties;
     // Format: City, State, Country
     const parts = [p.name, p.state, p.country].filter(Boolean);
     const formatted = parts.join(", ");
+    skipFetch.current = true;
     setQuery(formatted);
     onChange(formatted);
     setIsOpen(false);
