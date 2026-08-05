@@ -11,7 +11,7 @@ type FieldConfig = {
   question: string;
   subtitle?: string;
   placeholder?: string;
-  type: "text" | "textarea" | "searchable-dropdown" | "multi-select" | "multi-field";
+  type: "text" | "textarea" | "searchable-dropdown" | "multi-select" | "multi-field" | "location-autocomplete";
   options?: string[] | ((props?: any) => string[]);
   fields?: { id: string; label: string; type: string; required?: boolean }[];
   optional?: boolean;
@@ -22,7 +22,7 @@ const steps: FieldConfig[] = [
     id: "location",
     question: "Where is your business located?",
     placeholder: "City, State, Country",
-    type: "text",
+    type: "location-autocomplete",
   },
   {
     id: "industry",
@@ -97,6 +97,100 @@ const steps: FieldConfig[] = [
     ]
   }
 ];
+
+const LocationAutocomplete = ({ value, onChange, placeholder, showError }: { value: string, onChange: (v: string) => void, placeholder?: string, showError?: boolean }) => {
+  const [query, setQuery] = useState(value || "");
+  const [results, setResults] = useState<any[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!query || query === value) {
+      setResults([]);
+      setIsOpen(false);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(\`https://photon.komoot.io/api/?q=\${encodeURIComponent(query)}&limit=5\`);
+        const data = await res.json();
+        if (data.features) {
+          setResults(data.features);
+          setIsOpen(true);
+        }
+      } catch (err) {
+        console.error("Location search failed", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [query, value]);
+
+  const handleSelect = (feature: any) => {
+    const p = feature.properties;
+    // Format: City, State, Country
+    const parts = [p.name, p.state, p.country].filter(Boolean);
+    const formatted = parts.join(", ");
+    setQuery(formatted);
+    onChange(formatted);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative w-full">
+      <input
+        type="text"
+        autoFocus
+        className={\`w-full rounded-2xl border bg-background px-5 py-4 text-lg outline-none transition-colors \${showError ? "border-[color:var(--color-brand-pink)]/50 focus:border-[color:var(--color-brand-pink)]" : "border-foreground/15 placeholder:text-foreground/40 focus:border-foreground/40"}\`}
+        placeholder={placeholder || "City, State, Country"}
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          onChange(e.target.value); // still allow manual entry
+        }}
+        onFocus={() => { if (results.length > 0) setIsOpen(true); }}
+        onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.preventDefault(); // Prevent form submission if they press enter in search
+        }}
+      />
+      {isLoading && (
+        <div className="absolute right-5 top-1/2 -translate-y-1/2">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-foreground/30 border-t-foreground"></div>
+        </div>
+      )}
+      <AnimatePresence>
+        {isOpen && results.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute left-0 right-0 top-full mt-2 z-50 overflow-hidden rounded-2xl border border-foreground/15 bg-background shadow-2xl"
+          >
+            {results.map((f, i) => {
+              const p = f.properties;
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  className="w-full text-left px-5 py-3 hover:bg-foreground/5 transition-colors border-b border-foreground/5 last:border-b-0"
+                  onClick={() => handleSelect(f)}
+                >
+                  <div className="text-foreground font-medium">{p.name}</div>
+                  <div className="text-foreground/60 text-sm">{[p.state, p.country].filter(Boolean).join(", ")}</div>
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const SearchableDropdown = ({ options, value, onChange }: { options: string[], value: string, onChange: (v: string) => void }) => {
   const [query, setQuery] = useState("");
@@ -356,6 +450,13 @@ export function ContactForm({ title = "New enquiry", isBookACall = false }: { ti
                       onChange={(e) =>
                         setFormData({ ...formData, [currentField.id]: e.target.value })
                       }
+                    />
+                  ) : currentField.type === "location-autocomplete" ? (
+                    <LocationAutocomplete
+                      value={formData[currentField.id] || ""}
+                      onChange={(v) => setFormData({ ...formData, [currentField.id]: v })}
+                      placeholder={currentField.placeholder}
+                      showError={showError}
                     />
                   ) : currentField.type === "searchable-dropdown" ? (
                       <SearchableDropdown 
